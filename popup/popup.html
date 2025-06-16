@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hinglish Translator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Top header with theme toggle -->
+    <div class="topbar">
+      <h1>Hinglish Translator</h1>
+      <button id="themeToggle" class="theme-toggle-button" title="Toggle Dark/Light Mode">🌙</button>
+    </div>
+
+    <div class="api-key-section">
+      <div class="api-key-status" id="apiKeyStatus">No API key configured</div>
+      <div class="api-key-actions">
+        <button id="changeApiKey" class="button">Change Key</button>
+        <button id="removeApiKey" class="button">Remove Key</button>
+      </div>
+    </div>
+
+    <div class="api-key-container" id="apiKeyContainer" style="display: none;">
+      <div class="input-group">
+        <input type="password" id="apiKey" placeholder="Enter your Groq API key">
+        <button id="toggleApiKey" class="icon-button">👁️</button>
+      </div>
+      <button id="saveApiKey" class="button primary">Save API Key</button>
+    </div>
+
+    <div class="settings-section">
+      <h2>Translation Settings</h2>
+      <div class="setting-group">
+        <label for="translationStyle">Translation Style:</label>
+        <select id="translationStyle" class="select">
+          <option value="hinglish">Hinglish (Default)</option>
+          <option value="hindi">Hindi (Devanagari)</option>
+          <option value="roman">Roman (Hindi in English)</option>
+          <option value="formal">Formal Hinglish</option>
+          <option value="casual">Casual Hinglish</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="languageLevel">Language Level:</label>
+        <select id="languageLevel" class="select">
+          <option value="balanced">Balanced (Default)</option>
+          <option value="moreHindi">More Hindi</option>
+          <option value="moreEnglish">More English</option>
+        </select>
+      </div>
+      <button id="saveSettings" class="button primary">Save Settings</button>
+    </div>
+
+    <!-- Instruction Box -->
+    <div class="instructions-box">
+      <h2>📘 How to Use</h2>
+      <ul>
+        <li>Select any text on a webpage.</li>
+        <li>Right-click and choose:
+          <ul>
+            <li>“Translate to Hinglish” – for direct translation</li>
+            <li>“Explain in Hinglish” – for explanation using AI</li>
+          </ul>
+        </li>
+        <li>The translated or explained text will show in a popup.</li>
+        <li><strong>Your API key will be stored locally and securely.</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
