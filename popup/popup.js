@@ -1,24 +1,11 @@
+const THEME_KEY = 'themeMode';
+const THEME_TEXT = {
+  light: 'Dark',
+  dark: 'Light',
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
-  // Theme toggle logic
   const themeToggleBtn = document.getElementById('themeToggle');
-
-  // Apply saved theme
-  const { themeMode } = await chrome.storage.local.get('themeMode');
-  if (themeMode === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeToggleBtn.textContent = '☀️';
-  } else {
-    themeToggleBtn.textContent = '🌙';
-  }
-
-  // Toggle theme on button click
-  themeToggleBtn.addEventListener('click', async () => {
-    const isDark = document.body.classList.toggle('dark-mode');
-    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
-    await chrome.storage.local.set({ themeMode: isDark ? 'dark' : 'light' });
-  });
-
-  // Get DOM elements
   const apiKeyInput = document.getElementById('apiKey');
   const apiKeyContainer = document.getElementById('apiKeyContainer');
   const apiKeyStatus = document.getElementById('apiKeyStatus');
@@ -30,133 +17,141 @@ document.addEventListener('DOMContentLoaded', async () => {
   const languageLevel = document.getElementById('languageLevel');
   const saveSettings = document.getElementById('saveSettings');
 
-  // Check if API key exists
+  const initialTheme = await getSavedTheme();
+  applyTheme(initialTheme);
+  themeToggleBtn.textContent = THEME_TEXT[initialTheme];
+
+  themeToggleBtn.addEventListener('click', async () => {
+    const newTheme = document.body.classList.toggle('dark-mode') ? 'dark' : 'light';
+    themeToggleBtn.textContent = THEME_TEXT[newTheme];
+    await chrome.storage.local.set({ [THEME_KEY]: newTheme });
+  });
+
   const { groqApiKey } = await chrome.storage.local.get('groqApiKey');
   if (!groqApiKey) {
     window.location.href = 'welcome.html';
     return;
   }
 
-  // Show API key is configured
-  apiKeyStatus.textContent = '✓ API Key Configured';
-  apiKeyStatus.style.color = '#4CAF50';
+  setApiKeyConfigured(apiKeyStatus);
 
-  // Load existing translation settings
   const { translationSettings } = await chrome.storage.local.get('translationSettings');
   if (translationSettings) {
     translationStyle.value = translationSettings.style || 'hinglish';
     languageLevel.value = translationSettings.level || 'balanced';
   }
 
-  // Toggle API key visibility
   toggleApiKey.addEventListener('click', () => {
-    if (apiKeyInput.type === 'password') {
-      apiKeyInput.type = 'text';
-      toggleApiKey.textContent = '🙈';
-    } else {
-      apiKeyInput.type = 'password';
-      toggleApiKey.textContent = '👁️';
-    }
+    const isPassword = apiKeyInput.type === 'password';
+    apiKeyInput.type = isPassword ? 'text' : 'password';
+    toggleApiKey.textContent = isPassword ? 'Hide' : 'Show';
   });
 
-  // Save API key
   saveApiKey.addEventListener('click', async () => {
     const apiKey = apiKeyInput.value.trim();
     if (!apiKey) {
-      showError('Please enter your API key');
+      showError('Enter your Groq API key to continue.');
       return;
     }
 
     try {
       await chrome.storage.local.set({ groqApiKey: apiKey });
+      await validateGroqKey(apiKey);
 
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          messages: [{
-            role: "system",
-            content: "You are a helpful assistant."
-          }, {
-            role: "user",
-            content: "Hello"
-          }],
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
-          temperature: 0.7,
-          max_tokens: 10
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API error: ${response.status}`);
-      }
-
-      showSuccess('API key saved successfully');
+      showSuccess('API key saved successfully.');
       apiKeyInput.value = '';
+      apiKeyInput.type = 'password';
+      toggleApiKey.textContent = 'Show';
       apiKeyContainer.style.display = 'none';
-      apiKeyStatus.textContent = '✓ API Key Configured';
-      apiKeyStatus.style.color = '#4CAF50';
+      setApiKeyConfigured(apiKeyStatus);
     } catch (error) {
       console.error('API key validation error:', error);
       await chrome.storage.local.remove('groqApiKey');
-      showError(error.message || 'Failed to validate API key');
+      showError(error.message || 'Failed to validate API key.');
     }
   });
 
-  // Change API key
   changeApiKey.addEventListener('click', () => {
     apiKeyContainer.style.display = 'block';
   });
 
-  // Remove API key
   removeApiKey.addEventListener('click', async () => {
     try {
       await chrome.storage.local.remove('groqApiKey');
       window.location.href = 'welcome.html';
     } catch (error) {
       console.error('Error removing API key:', error);
-      showError('Failed to remove API key');
+      showError('Failed to remove API key.');
     }
   });
 
-  // Save translation settings
   saveSettings.addEventListener('click', async () => {
+    const settings = {
+      style: translationStyle.value,
+      level: languageLevel.value,
+    };
+
     try {
-      const settings = {
-        style: translationStyle.value,
-        level: languageLevel.value
-      };
       await chrome.storage.local.set({ translationSettings: settings });
-      showSuccess('Settings saved successfully');
+      showSuccess('Settings saved.');
     } catch (error) {
       console.error('Error saving settings:', error);
-      showError('Failed to save settings');
+      showError('Failed to save settings.');
     }
   });
 });
 
-// Function to show success message
-function showSuccess(message) {
-  const successDiv = document.createElement('div');
-  successDiv.className = 'success-message';
-  successDiv.textContent = message;
-  document.body.appendChild(successDiv);
-  setTimeout(() => {
-    successDiv.remove();
-  }, 3000);
+async function getSavedTheme() {
+  const { [THEME_KEY]: themeMode } = await chrome.storage.local.get(THEME_KEY);
+  return themeMode === 'dark' ? 'dark' : 'light';
 }
 
-// Function to show error message
+function applyTheme(theme) {
+  document.body.classList.toggle('dark-mode', theme === 'dark');
+}
+
+function setApiKeyConfigured(element) {
+  element.textContent = 'API key configured';
+  element.style.color = '#0b8043';
+}
+
+async function validateGroqKey(apiKey) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      temperature: 0.7,
+      max_tokens: 10,
+      messages: [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: 'Hello' },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    const message = payload?.error?.message || `Groq API error: ${response.status}`;
+    throw new Error(message);
+  }
+}
+
+function showSuccess(message) {
+  showToast(message, 'success-message');
+}
+
 function showError(message) {
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-message';
-  errorDiv.textContent = message;
-  document.body.appendChild(errorDiv);
-  setTimeout(() => {
-    errorDiv.remove();
-  }, 3000);
+  showToast(message, 'error-message');
+}
+
+function showToast(message, className) {
+  const toast = document.createElement('div');
+  toast.className = className;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }

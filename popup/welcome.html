@@ -2,106 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hinglish Translator - Welcome</title>
+  <title>Hinglish Translator · Welcome</title>
   <link rel="stylesheet" href="popup.css">
   <style>
-    .dark-mode {
-      background-color: #222;
-      color: #f1f1f1;
+    body.light-mode {
+      background-color: #fffbea;
+      color: #202124;
     }
 
-    .light-mode {
-      background-color: #fffbea;
-      color: #222;
+    body.dark-mode {
+      background-color: #202124;
+      color: #e8eaed;
     }
 
     .theme-toggle {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 16px;
+      right: 16px;
       background: none;
-      border: none;
-      font-size: 1.5rem;
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 14px;
       cursor: pointer;
+      color: inherit;
+    }
+
+    .theme-toggle:hover {
+      border-color: currentColor;
     }
 
     .setup {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 20px;
-      border-radius: 10px;
-      background-color: inherit;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 28px;
+      border-radius: 12px;
+      background-color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    body.dark-mode .setup {
+      background-color: rgba(32, 33, 36, 0.9);
     }
 
     .setup input {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1rem;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      font-size: 15px;
+      background: transparent;
+      color: inherit;
+    }
+
+    body.dark-mode .setup input {
+      border-color: #5f6368;
     }
 
     .setup button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 1rem;
+      margin-top: 18px;
+      padding: 12px 20px;
+      font-size: 15px;
       cursor: pointer;
       border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
+      border-radius: 6px;
+      background-color: #1a73e8;
       color: white;
+    }
+
+    .setup button:hover {
+      background-color: #1557b0;
     }
 
     .setup p {
       margin-top: 20px;
-      font-size: 0.95rem;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .setup a {
       color: inherit;
       text-decoration: underline;
     }
+
+    .error-message {
+      color: #d93025;
+      margin-top: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body class="light-mode">
-  <button class="theme-toggle" id="themeToggle">🌙</button>
+  <button class="theme-toggle" id="themeToggle" type="button">Dark</button>
 
   <div class="setup">
     <h2>Welcome to Hinglish Translator</h2>
-    <p>Please enter your Groq API key to enable translations:</p>
+    <p>Enter your Groq API key to start translating instantly.</p>
 
-    <input type="password" id="apiKeyInput" placeholder="Enter your Groq API key">
-    <button id="saveApiKey">Save Key</button>
+    <input type="password" id="apiKeyInput" placeholder="Enter your Groq API key" autocomplete="off">
+    <button id="saveApiKey" type="button">Save Key</button>
 
-    <p>Your key will be stored locally in Chrome and only used for translation requests.</p>
-    <p>Don't have a key? <a href="https://console.groq.com/keys" target="_blank">Get one from Groq</a></p>
+    <p>Your key stays on this device and is only used for Groq requests.</p>
+    <p>Need a key? <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Create one on Groq</a></p>
   </div>
 
-  <script>
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      body.className = savedTheme;
-      themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '🌙';
-    }
-
-    themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('dark-mode')) {
-        body.classList.replace('dark-mode', 'light-mode');
-        themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light-mode');
-      } else {
-        body.classList.replace('light-mode', 'dark-mode');
-        themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark-mode');
-      }
-    });
-  </script>
   <script src="welcome.js"></script>
 </body>
 </html>

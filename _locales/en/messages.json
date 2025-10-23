@@ -1,0 +1,26 @@
+{
+    "extensionName": {
+      "message": "English to Hinglish Translator",
+      "description": "Name of the extension"
+    },
+    "extensionDescription": {
+      "message": "Convert English text to Hinglish for better understanding",
+      "description": "Description of the extension"
+    },
+    "contextMenuTitle": {
+      "message": "Translate to Hinglish",
+      "description": "Context menu item title"
+    },
+    "translationFailed": {
+      "message": "Translation failed",
+      "description": "Shown when the translation request cannot be completed"
+    },
+    "apiKeyMissing": {
+      "message": "Please configure your API key first",
+      "description": "Shown when the Groq API key has not been set"
+    },
+    "apiError": {
+      "message": "Groq API error",
+      "description": "Prefix for Groq API failures"
+    }
+  }
